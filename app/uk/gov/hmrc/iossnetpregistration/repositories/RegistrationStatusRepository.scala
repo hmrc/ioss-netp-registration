@@ -1,0 +1,84 @@
+/*
+ * Copyright 2026 HM Revenue & Customs
+ *
+ */
+
+package uk.gov.hmrc.iossnetpregistration.repositories
+
+import org.mongodb.scala.bson.conversions.Bson
+import org.mongodb.scala.model.*
+import uk.gov.hmrc.iossnetpregistration.config.AppConfig
+import uk.gov.hmrc.iossnetpregistration.logging.Logging
+import uk.gov.hmrc.iossnetpregistration.models.RegistrationStatus
+import uk.gov.hmrc.iossnetpregistration.repositories.InsertResult.{AlreadyExists, InsertSucceeded}
+import uk.gov.hmrc.iossnetpregistration.repositories.MongoErrors.Duplicate
+import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
+import uk.gov.hmrc.mongo.MongoComponent
+
+import java.util.concurrent.TimeUnit
+import javax.inject.{Inject, Singleton}
+import scala.concurrent.{ExecutionContext, Future}
+
+
+@Singleton
+class RegistrationStatusRepository @Inject()(
+                                              mongoComponent: MongoComponent,
+                                              appConfig: AppConfig
+                                            )(implicit ec: ExecutionContext)
+  extends PlayMongoRepository[RegistrationStatus] (
+    collectionName = "registration-status",
+    mongoComponent = mongoComponent,
+    domainFormat   = RegistrationStatus.format,
+    replaceIndexes = true,
+    indexes        = Seq(
+      IndexModel(
+        Indexes.ascending("subscriptionId"),
+        IndexOptions()
+          .name("subscriptionIdIndex")
+          .unique(true)
+      ),
+      IndexModel(
+        Indexes.ascending("lastUpdated"),
+        IndexOptions()
+          .name("lastUpdatedIdx")
+          .expireAfter(appConfig.registrationStatusTtl, TimeUnit.HOURS)
+      )
+    )
+  ) with Logging {
+
+  private def bySubscriptionId(subscriptionId: String): Bson = Filters.equal("subscriptionId", subscriptionId)
+
+  def insert(registrationStatus: RegistrationStatus): Future[InsertResult] = {
+
+    collection
+      .insertOne(registrationStatus)
+      .toFuture()
+      .map(_ => InsertSucceeded)
+      .recover {
+        case Duplicate(_) => AlreadyExists
+      }
+  }
+
+  def set(registrationStatus: RegistrationStatus): Future[RegistrationStatus] = {
+
+    collection
+      .replaceOne(
+        filter = bySubscriptionId(registrationStatus.subscriptionId),
+        replacement = registrationStatus,
+        options = ReplaceOptions().upsert(true)
+      )
+      .toFuture()
+      .map(_ => registrationStatus)
+  }
+
+  def get(subscriptionId: String): Future[Option[RegistrationStatus]] = {
+    collection
+      .find(bySubscriptionId(subscriptionId)).headOption()
+  }
+
+  def delete(subscriptionId: String): Future[Boolean] =
+    collection
+      .deleteOne(bySubscriptionId(subscriptionId))
+      .toFuture()
+      .map(_ => true)
+}

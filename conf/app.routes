@@ -1,0 +1,28 @@
+# microservice specific routes
+
+GET         /vat-information/:vrn                                                      uk.gov.hmrc.iossnetpregistration.controllers.VatInfoController.get(vrn: String)
+
+POST        /save-pending-registration                                                 uk.gov.hmrc.iossnetpregistration.controllers.PendingRegistrationController.post()
+GET         /save-pending-registration/:uniqueUrlCode                                  uk.gov.hmrc.iossnetpregistration.controllers.PendingRegistrationController.get(uniqueUrlCode: String)
+GET         /pending-registrations/:intermediaryNumber                                 uk.gov.hmrc.iossnetpregistration.controllers.PendingRegistrationController.getByIntermediaryNumber(intermediaryNumber: String)
+GET         /pending-registrations/count/:intermediaryNumber                           uk.gov.hmrc.iossnetpregistration.controllers.PendingRegistrationController.getCount(intermediaryNumber: String)
+DELETE      /pending-registrations/:journeyId                                          uk.gov.hmrc.iossnetpregistration.controllers.PendingRegistrationController.delete(journeyId: String)
+PUT         /pending-registrations/:journeyId/:emailAddress                            uk.gov.hmrc.iossnetpregistration.controllers.PendingRegistrationController.updateClientEmailAddress(journeyId: String, emailAddress: String)
+
+GET         /validate-pending-registration/:uniqueUrlCode/:uniqueActivationCode        uk.gov.hmrc.iossnetpregistration.controllers.PendingRegistrationController.validate(uniqueUrlCode: String, uniqueActivationCode: String)
+
+GET         /registrations/:iossNumber                                                 uk.gov.hmrc.iossnetpregistration.controllers.RegistrationController.displayRegistration(iossNumber: String)
+POST        /create-registration                                                       uk.gov.hmrc.iossnetpregistration.controllers.RegistrationController.createRegistration()
+POST        /amend                                                                     uk.gov.hmrc.iossnetpregistration.controllers.RegistrationController.amend()
+
+POST        /validate-core-registration                                                uk.gov.hmrc.iossnetpregistration.controllers.ValidateCoreRegistrationController.post()
+
+POST        /authorised/accept/confirm/:subscriptionId                                 uk.gov.hmrc.iossnetpregistration.controllers.EnrolmentsSubscriptionController.authoriseEnrolment(subscriptionId: String)
+
+
+POST        /save-for-later                                                            uk.gov.hmrc.iossnetpregistration.controllers.SaveForLaterController.post()
+GET         /save-for-later/:journeyId                                                 uk.gov.hmrc.iossnetpregistration.controllers.SaveForLaterController.get(journeyId: String)
+
+GET         /save-for-later-selection/:intermediaryNumber                              uk.gov.hmrc.iossnetpregistration.controllers.SaveForLaterController.getSelection(intermediaryNumber: String)
+GET         /save-for-later/delete/:journeyId                                          uk.gov.hmrc.iossnetpregistration.controllers.SaveForLaterController.delete(journeyId: String)
+GET         /save-for-later/count/:intermediaryNumber                                  uk.gov.hmrc.iossnetpregistration.controllers.SaveForLaterController.getCount(intermediaryNumber: String)
