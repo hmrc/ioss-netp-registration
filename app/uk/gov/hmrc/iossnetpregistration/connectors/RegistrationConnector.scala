@@ -12,7 +12,6 @@ import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, HttpErrorFunctions, HttpException, StringContextOps}
 import uk.gov.hmrc.iossnetpregistration.config.{AmendRegistrationConfig, CreateRegistrationConfig, EtmpDisplayRegistrationConfig}
 import uk.gov.hmrc.iossnetpregistration.connectors.RegistrationHttpParser.*
-import uk.gov.hmrc.iossnetpregistration.connectors.VatCustomerInfoHttpParser.*
 import uk.gov.hmrc.iossnetpregistration.logging.Logging
 import uk.gov.hmrc.iossnetpregistration.models.etmp.EtmpRegistrationRequest
 import uk.gov.hmrc.iossnetpregistration.models.etmp.amend.*

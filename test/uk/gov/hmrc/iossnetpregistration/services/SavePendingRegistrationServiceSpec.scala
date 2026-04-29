@@ -99,6 +99,122 @@ class SavePendingRegistrationServiceSpec extends BaseSpec with BeforeAndAfterEac
       }
     }
 
+    ".getPendingRegistrationsByCustomerIdentification" - {
+
+      def registrationWithData(data: JsObject): SavedPendingRegistration =
+        savedPendingRegistration.copy(
+          userAnswers = savedPendingRegistration.userAnswers.copy(data = data)
+        )
+
+      "must return pending registrations matching VRN" in {
+        val matchingReg =
+          registrationWithData(Json.obj("clientVatNumber" -> "123456789"))
+
+        val nonMatchingReg =
+          registrationWithData(Json.obj("clientVatNumber" -> "987654321"))
+
+        when(mockPendingRegistrationRepository.getAll())
+          .thenReturn(Seq(matchingReg, nonMatchingReg).toFuture)
+
+        val service = SavePendingRegistrationService
+
+        val result =
+          service.getPendingRegistrationsByCustomerIdentification("VRN", "123456789").futureValue
+
+        result mustBe Seq(matchingReg)
+        verify(mockPendingRegistrationRepository, times(1)).getAll()
+      }
+
+      "must return pending registrations matching NINO" in {
+        val matchingReg =
+          registrationWithData(Json.obj("clientsNinoNumber" -> "AB123456C"))
+
+        val nonMatchingReg =
+          registrationWithData(Json.obj("clientsNinoNumber" -> "CD123456E"))
+
+        when(mockPendingRegistrationRepository.getAll())
+          .thenReturn(Seq(matchingReg, nonMatchingReg).toFuture)
+
+        val service = SavePendingRegistrationService
+
+        val result =
+          service.getPendingRegistrationsByCustomerIdentification("NINO", "AB123456C").futureValue
+
+        result mustBe Seq(matchingReg)
+        verify(mockPendingRegistrationRepository, times(1)).getAll()
+      }
+
+      "must return pending registrations matching UTR" in {
+        val matchingReg =
+          registrationWithData(Json.obj("clientUtrNumber" -> "1234567890"))
+
+        val nonMatchingReg =
+          registrationWithData(Json.obj("clientUtrNumber" -> "0987654321"))
+
+        when(mockPendingRegistrationRepository.getAll())
+          .thenReturn(Seq(matchingReg, nonMatchingReg).toFuture)
+
+        val service = SavePendingRegistrationService
+
+        val result =
+          service.getPendingRegistrationsByCustomerIdentification("UTR", "1234567890").futureValue
+
+        result mustBe Seq(matchingReg)
+        verify(mockPendingRegistrationRepository, times(1)).getAll()
+      }
+
+      "must return pending registrations matching FTR" in {
+        val matchingReg =
+          registrationWithData(Json.obj("clientTaxRefrence" -> "XATR1234567890"))
+
+        val nonMatchingReg =
+          registrationWithData(Json.obj("clientTaxRefrence" -> "XATR0987654321"))
+
+        when(mockPendingRegistrationRepository.getAll())
+          .thenReturn(Seq(matchingReg, nonMatchingReg).toFuture)
+
+        val service = SavePendingRegistrationService
+
+        val result =
+          service.getPendingRegistrationsByCustomerIdentification("FTR", "XATR1234567890").futureValue
+
+        result mustBe Seq(matchingReg)
+        verify(mockPendingRegistrationRepository, times(1)).getAll()
+      }
+
+      "must return an empty sequence when idType is unsupported" in {
+        val reg =
+          registrationWithData(Json.obj("clientVatNumber" -> "123456789"))
+
+        when(mockPendingRegistrationRepository.getAll())
+          .thenReturn(Seq(reg).toFuture)
+
+        val service = SavePendingRegistrationService
+
+        val result =
+          service.getPendingRegistrationsByCustomerIdentification("INVALID", "123456789").futureValue
+
+        result mustBe Seq.empty
+        verify(mockPendingRegistrationRepository, times(1)).getAll()
+      }
+
+      "must return an empty sequence when no pending registration matches the idValue" in {
+        val reg =
+          registrationWithData(Json.obj("clientVatNumber" -> "987654321"))
+
+        when(mockPendingRegistrationRepository.getAll())
+          .thenReturn(Seq(reg).toFuture)
+
+        val service = SavePendingRegistrationService
+
+        val result =
+          service.getPendingRegistrationsByCustomerIdentification("VRN", "123456789").futureValue
+
+        result mustBe Seq.empty
+        verify(mockPendingRegistrationRepository, times(1)).getAll()
+      }
+    }
+
     ".validateClientActivationCode" - {
 
       "must return a Some(true) when a record exists for the uniqueUrlCode and there's matching uniqueActivationCode's" in {

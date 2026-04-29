@@ -8,6 +8,7 @@ GET         /pending-registrations/:intermediaryNumber                          
 GET         /pending-registrations/count/:intermediaryNumber                           uk.gov.hmrc.iossnetpregistration.controllers.PendingRegistrationController.getCount(intermediaryNumber: String)
 DELETE      /pending-registrations/:journeyId                                          uk.gov.hmrc.iossnetpregistration.controllers.PendingRegistrationController.delete(journeyId: String)
 PUT         /pending-registrations/:journeyId/:emailAddress                            uk.gov.hmrc.iossnetpregistration.controllers.PendingRegistrationController.updateClientEmailAddress(journeyId: String, emailAddress: String)
+GET         /pending-registration/:idType/:idValue                                     uk.gov.hmrc.iossnetpregistration.controllers.PendingRegistrationController.getByCustomerIdentification(idType: String, idValue: String)
 
 GET         /validate-pending-registration/:uniqueUrlCode/:uniqueActivationCode        uk.gov.hmrc.iossnetpregistration.controllers.PendingRegistrationController.validate(uniqueUrlCode: String, uniqueActivationCode: String)
 

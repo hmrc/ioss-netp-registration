@@ -215,6 +215,64 @@ class PendingRegistrationRepositorySpec
       }
     }
 
+    ".getAll" - {
+
+      "must return SavedPendingRegistration record" in {
+
+        when(mockSavedPendingRegistrationEncryptor.decryptUserAnswers(any())) thenReturn savedPendingRegistration
+
+        val updatedAnswers = encryptedSavedPendingRegistration
+
+        insert(updatedAnswers).futureValue
+
+        val result = repository.getAll().futureValue
+
+        result `mustBe` Seq(savedPendingRegistration)
+      }
+
+      "must return multiple SavedPendingRegistration records" in {
+
+        val savedPendingRegistration1 =
+          arbitrarySavedPendingRegistration.arbitrary.sample.value
+
+        val savedPendingRegistration2 =
+          arbitrarySavedPendingRegistration.arbitrary.sample.value
+
+        val encrypted1 =
+          arbitraryEncryptedPendingRegistrationAnswers.arbitrary.sample.value.copy(
+            journeyId = savedPendingRegistration1.journeyId
+          )
+
+        val encrypted2 =
+          arbitraryEncryptedPendingRegistrationAnswers.arbitrary.sample.value.copy(
+            journeyId = savedPendingRegistration2.journeyId
+          )
+
+        when(mockSavedPendingRegistrationEncryptor.decryptUserAnswers(encrypted1))
+          .thenReturn(savedPendingRegistration1)
+
+        when(mockSavedPendingRegistrationEncryptor.decryptUserAnswers(encrypted2))
+          .thenReturn(savedPendingRegistration2)
+
+        insert(encrypted1).futureValue
+        insert(encrypted2).futureValue
+
+        val result = repository.getAll().futureValue
+
+        result must contain theSameElementsAs Seq(
+          savedPendingRegistration1,
+          savedPendingRegistration2
+        )
+      }
+
+      "must return an empty sequence when no records exist" in {
+
+        val result = repository.getAll().futureValue
+
+        result `mustBe` Seq.empty
+      }
+    }
+
     ".getDecrypted" - {
 
       " must return SavedPendingRegistration record when one exists for this uniqueUrlCode" in {

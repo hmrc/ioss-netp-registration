@@ -64,6 +64,23 @@ class PendingRegistrationController @Inject()(
         }
     }
 
+  def getByCustomerIdentification(idType: String, idValue: String): Action[AnyContent] = {
+    cc.identify.async { implicit request =>
+      savePendingRegistrationService
+        .getPendingRegistrationsByCustomerIdentification(idType, idValue)
+        .map { registrations =>
+          Ok(Json.toJson(registrations))
+        }
+        .recover {
+          case ex: Throwable =>
+            logger.error(s"Error retrieving pending registrations for idType: $idType", ex)
+            InternalServerError(Json.obj(
+              "message" -> "An unexpected error occurred. Please try again later."
+            ))
+        }
+    }
+  }
+
   def getCount(intermediaryNumber: String): Action[AnyContent] = cc.identify.async {
     implicit request =>
       savePendingRegistrationService.getCount(intermediaryNumber)
