@@ -69,9 +69,5 @@ class AuthenticatedIdentifierAction @Inject()(
       .find(_.key == config.intermediaryEnrolmentName)
       .flatMap(_.identifiers.find(id => id.key == config.intermediaryEnrolmentKey && id.value.nonEmpty).map(_.value))
   }
-
-  private def findNetpFromEnrolments(enrolments: Enrolments): Boolean = {
-    enrolments.enrolments.exists(_.key == "HMRC-IOSS-NETP")
-  }
 }
 

@@ -35,6 +35,8 @@ class PendingRegistrationControllerSpec extends BaseSpec with BeforeAndAfterEach
 
   def pendingRegistrationsByIntNumberGetRoute(intermediaryNumber: String): String = routes.PendingRegistrationController.getByIntermediaryNumber(intermediaryNumber).url
 
+  def pendingRegistrationsByCustomerIdentification(idType: String, idValue: String): String = routes.PendingRegistrationController.getByCustomerIdentification(idType, idValue).url
+
   def numberOfPendingRegistrationsGetRoute(intermediaryNumber: String): String = routes.PendingRegistrationController.getCount(intermediaryNumber).url
 
   def pendingRegistrationValidateRoute(uniqueUrlCode: String, uniqueActivationCode: String): String = routes.PendingRegistrationController.validate(uniqueUrlCode, uniqueActivationCode).url
@@ -244,6 +246,73 @@ class PendingRegistrationControllerSpec extends BaseSpec with BeforeAndAfterEach
           status(result) mustBe OK
           contentAsJson(result) mustBe Json.toJson(Seq.empty[SavedPendingRegistration])
           verify(mockSavePendingRegistrationService, times(1)).getPendingRegistrationsByIntermediaryNumber(eqTo(nonExistentIntermediaryNumber))
+        }
+      }
+    }
+
+    ".getByCustomerIdentification" - {
+
+      "must retrieve a pending registration for a given customer identification when one exists" in {
+
+        val application = applicationBuilder()
+          .overrides(bind[SavePendingRegistrationService].toInstance(mockSavePendingRegistrationService))
+          .build()
+
+        when(mockSavePendingRegistrationService.getPendingRegistrationsByCustomerIdentification(any(), any())) thenReturn Seq(savedPendingRegistration).toFuture
+
+        running(application) {
+
+          val request = FakeRequest(GET, pendingRegistrationsByCustomerIdentification("VRN", "123456789"))
+
+          val result = route(application, request).value
+
+          status(result) `mustBe` OK
+          contentAsJson(result) `mustBe` Json.toJson(Seq(savedPendingRegistration))
+          verify(mockSavePendingRegistrationService, times(1)).getPendingRegistrationsByCustomerIdentification(eqTo("VRN"), eqTo("123456789"))
+        }
+      }
+
+      "must retrieve multiple pending registrations for a given customer identification when more than one exists" in {
+
+        val application = applicationBuilder()
+          .overrides(bind[SavePendingRegistrationService].toInstance(mockSavePendingRegistrationService))
+          .build()
+
+        val record1 = savedPendingRegistration
+        val record2 = arbitrarySavedPendingRegistration.arbitrary.sample.value
+
+        when(mockSavePendingRegistrationService.getPendingRegistrationsByCustomerIdentification(any(), any()))
+          .thenReturn(Seq(record1, record2).toFuture)
+
+        running(application) {
+          val request = FakeRequest(GET, pendingRegistrationsByCustomerIdentification("VRN", "123456789"))
+
+          val result = route(application, request).value
+
+          status(result) mustBe OK
+          contentAsJson(result) mustBe Json.toJson(Seq(record1, record2))
+          verify(mockSavePendingRegistrationService, times(1))
+            .getPendingRegistrationsByCustomerIdentification(eqTo("VRN"), eqTo("123456789"))
+        }
+      }
+
+      "must return an empty list when a pending registration record does not exist for a given intermediary number" in {
+
+        val application = applicationBuilder()
+          .overrides(bind[SavePendingRegistrationService].toInstance(mockSavePendingRegistrationService))
+          .build()
+
+        when(mockSavePendingRegistrationService.getPendingRegistrationsByCustomerIdentification(any(), any()))
+          .thenReturn(Seq.empty[SavedPendingRegistration].toFuture)
+
+        running(application) {
+          val request = FakeRequest(GET, pendingRegistrationsByCustomerIdentification("VRN", "123456789"))
+
+          val result = route(application, request).value
+
+          status(result) mustBe OK
+          contentAsJson(result) mustBe Json.toJson(Seq.empty[SavedPendingRegistration])
+          verify(mockSavePendingRegistrationService, times(1)).getPendingRegistrationsByCustomerIdentification(eqTo("VRN"), eqTo("123456789"))
         }
       }
     }

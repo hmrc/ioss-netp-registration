@@ -40,6 +40,29 @@ class SavePendingRegistrationService @Inject()(
     pendingRegistrationRepository.getByIntermediaryNumber(intermediaryNumber)
   }
 
+  def getPendingRegistrationsByCustomerIdentification(
+                                                       idType: String,
+                                                       idValue: String
+                                                     ): Future[Seq[SavedPendingRegistration]] =
+    pendingRegistrationRepository.getAll().map { regs =>
+      regs.filter { reg =>
+        idType match {
+          case "VRN" =>
+            (reg.userAnswers.data \ "clientVatNumber").asOpt[String].contains(idValue)
+          case "NINO" =>
+            (reg.userAnswers.data \ "clientsNinoNumber").asOpt[String].contains(idValue)
+
+          case "UTR" =>
+            (reg.userAnswers.data \ "clientUtrNumber").asOpt[String].contains(idValue)
+
+          case "FTR" =>
+            (reg.userAnswers.data \ "clientTaxRefrence").asOpt[String].contains(idValue)
+          case _ =>
+            false
+        }
+      }
+    }
+
   def deletePendingRegistration(journeyId: String): Future[Boolean] = {
     pendingRegistrationRepository.delete(journeyId)
   }

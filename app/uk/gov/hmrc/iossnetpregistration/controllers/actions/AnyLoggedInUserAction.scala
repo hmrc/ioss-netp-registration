@@ -10,13 +10,9 @@ import play.api.mvc.*
 import play.api.mvc.Results.*
 import uk.gov.hmrc.auth.core.*
 import uk.gov.hmrc.auth.core.retrieve.*
-import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
-import uk.gov.hmrc.domain.Vrn
 import uk.gov.hmrc.http.{HeaderCarrier, UnauthorizedException}
-import uk.gov.hmrc.iossnetpregistration.config.AppConfig
 import uk.gov.hmrc.iossnetpregistration.logging.Logging
-import uk.gov.hmrc.iossnetpregistration.models.requests.{AnyLoggedInUserRequest, IdentifierRequest}
-import uk.gov.hmrc.iossnetpregistration.utils.FutureSyntax.FutureOps
+import uk.gov.hmrc.iossnetpregistration.models.requests.AnyLoggedInUserRequest
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
 
 import scala.concurrent.{ExecutionContext, Future}

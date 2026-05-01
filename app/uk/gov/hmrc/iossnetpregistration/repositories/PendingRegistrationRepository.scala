@@ -121,6 +121,13 @@ class PendingRegistrationRepository @Inject()(
       .map(_.map(savedPendingRegistrationEncryptor.decryptUserAnswers))
   }
 
+  def getAll(): Future[Seq[SavedPendingRegistration]] = {
+    collection
+      .find()
+      .toFuture()
+      .map(_.map(savedPendingRegistrationEncryptor.decryptUserAnswers))
+  }
+
   def getDecrypted(uniqueUrlCode: String): Future[Option[SavedPendingRegistration]] = {
     collection
       .find(
