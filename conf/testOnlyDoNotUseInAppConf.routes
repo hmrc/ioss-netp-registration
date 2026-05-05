@@ -13,3 +13,5 @@
 ->         /                          prod.Routes
 
 GET         /ioss-netp-registration/test-only/ActivationCode/:uniqueUrlCode      uk.gov.hmrc.iossnetpregistration.controllers.testOnly.TestOnlyDeclarationCodeController.getDeclarationCodeTest(uniqueUrlCode: String)
+
+DELETE      /ioss-netp-registration/test-only/delete-pending-registration        uk.gov.hmrc.iossnetpregistration.controllers.testOnly.TestOnlyPendingRegistrationController.deletePending()

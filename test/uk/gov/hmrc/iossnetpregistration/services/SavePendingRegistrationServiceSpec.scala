@@ -327,6 +327,21 @@ class SavePendingRegistrationServiceSpec extends BaseSpec with BeforeAndAfterEac
       }
     }
 
+    ".deleteAllPendingRegistrations" - {
+
+      "must delete all pending registrations" in {
+
+        when(mockPendingRegistrationRepository.deleteAll()) thenReturn true.toFuture
+
+        val service = SavePendingRegistrationService
+
+        val result = service.deleteAllPendingRegistrations().futureValue
+
+        result `mustBe` true
+        verify(mockPendingRegistrationRepository, times(1)).deleteAll()
+      }
+    }
+
     ".count" - {
 
       "must return a count of pending registrations" in {

@@ -326,6 +326,18 @@ class PendingRegistrationRepositorySpec
       }
     }
 
+    ".deleteAll" - {
+
+      "must delete a pending registration detail if it exists in the database" in {
+        val updatedAnswers = encryptedSavedPendingRegistration
+
+        insert(updatedAnswers).futureValue
+        val result = repository.deleteAll().futureValue
+
+        result `mustBe` true
+      }
+    }
+
     ".updateClientEmail" - {
 
       "must return an updated SavedPendingRegistration record" in {
