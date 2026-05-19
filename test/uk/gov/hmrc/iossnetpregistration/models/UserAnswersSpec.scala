@@ -33,6 +33,8 @@ class UserAnswersSpec extends BaseSpec {
           vatInfo = userAnswers.vatInfo,
           lastUpdated = userAnswers.lastUpdated
         )
+        
+        println(Json.toJson(expectedAnswers))
 
         Json.toJson(expectedAnswers) `mustBe` json
         json.validate[UserAnswers] `mustBe` JsSuccess(expectedAnswers)
