@@ -81,7 +81,8 @@ class TestOnlyPendingRegistrationController @Inject()(
             organisationName = Some("Company name"),
             singleMarketIndicator = true,
             individualName = None,
-            deregistrationDecisionDate = None
+            deregistrationDecisionDate = None,
+            partOfVatGroup = false
           )),
           lastUpdated = Instant.now()
         ),

@@ -67,7 +67,8 @@ trait BaseSpec
       organisationName = Some("Company name"),
       singleMarketIndicator = true,
       individualName = None,
-      deregistrationDecisionDate = None
+      deregistrationDecisionDate = None,
+      partOfVatGroup = false,
     )
 
   val dateFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")

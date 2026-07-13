@@ -19,12 +19,14 @@ package uk.gov.hmrc.iossnetpregistration.models.des
 import play.api.libs.functional.syntax.*
 import play.api.libs.json.*
 import uk.gov.hmrc.iossnetpregistration.models.DesAddress
+import uk.gov.hmrc.iossnetpregistration.models.des.PartyType.VatGroup
 
 import java.time.LocalDate
 
 case class VatCustomerInfo(
                             desAddress: DesAddress,
                             registrationDate: Option[LocalDate],
+                            partOfVatGroup: Boolean,
                             organisationName: Option[String],
                             individualName: Option[String],
                             singleMarketIndicator: Boolean,
@@ -36,7 +38,7 @@ object VatCustomerInfo {
   private def fromDesPayload(
                               address: DesAddress,
                               registrationDate: Option[LocalDate],
-                              partyType: Option[PartyType], // To be implemented at a later date
+                              partyType: Option[PartyType],
                               organisationName: Option[String],
                               individualFirstName: Option[String],
                               individualMiddleName: Option[String],
@@ -52,6 +54,10 @@ object VatCustomerInfo {
     VatCustomerInfo(
       desAddress = address,
       registrationDate = registrationDate,
+      partOfVatGroup = partyType match {
+        case Some(VatGroup) => true
+        case _ => false
+      },
       organisationName = organisationName,
       individualName = if (individualFirstName.isEmpty && individualMiddleName.isEmpty && individualLastName.isEmpty) {
         None
