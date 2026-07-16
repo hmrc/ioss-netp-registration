@@ -8,17 +8,19 @@ class PendingRegistrationRequestSpec extends BaseSpec {
   private val savedPendingRegistration: SavedPendingRegistration  =
     arbitrarySavedPendingRegistration.arbitrary.sample.value
 
+  private val userAnswers: UserAnswers = arbitraryUserAnswers.arbitrary.sample.value
+
   "PendingRegistrationRequest" - {
 
     "must serialise/deserialise to and from PendingRegistrationRequest" in {
 
       val json = Json.obj(
-        "userAnswers" -> savedPendingRegistration.userAnswers,
+        "userAnswers" -> userAnswers,
         "intermediaryDetails" -> savedPendingRegistration.intermediaryDetails
       )
 
       val expectedResult: PendingRegistrationRequest = PendingRegistrationRequest(
-        userAnswers = savedPendingRegistration.userAnswers,
+        userAnswers = userAnswers,
         intermediaryDetails = savedPendingRegistration.intermediaryDetails
       )
 

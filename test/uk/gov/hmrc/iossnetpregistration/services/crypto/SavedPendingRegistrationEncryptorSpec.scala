@@ -52,7 +52,7 @@ class SavedPendingRegistrationEncryptorSpec extends BaseSpec with BeforeAndAfter
           )
         }
 
-        val userAnswersAsString = Json.toJson(savedPendingRegistration.userAnswers).toString
+        val userAnswersAsString = Json.toJson(savedPendingRegistration.userAnswersData).toString
 
         result `mustBe` expectedAnswers
         result.uniqueActivationCode must not be savedPendingRegistration.uniqueActivationCode
@@ -98,18 +98,18 @@ class SavedPendingRegistrationEncryptorSpec extends BaseSpec with BeforeAndAfter
 
         val encryptor = new SavedPendingRegistrationEncryptor(mockEncryptionService)
 
-        when(mockEncryptionService.encryptField(eqTo(Json.toJson(savedPendingRegistration.userAnswers).toString))) thenReturn encryptedUserAnswers
+        when(mockEncryptionService.encryptField(eqTo(Json.toJson(savedPendingRegistration.userAnswersData).toString))) thenReturn encryptedUserAnswers
         when(mockEncryptionService.encryptField(eqTo(savedPendingRegistration.uniqueActivationCode))) thenReturn encryptedUniqueActivationCode
 
         val encryptedSavedPendingRegistration: EncryptedSavedPendingRegistration = encryptor.encryptAnswers(savedPendingRegistration)
 
-        when(mockEncryptionService.decryptField(eqTo(encryptedUserAnswers))) thenReturn Json.toJson(savedPendingRegistration.userAnswers).toString
+        when(mockEncryptionService.decryptField(eqTo(encryptedUserAnswers))) thenReturn Json.toJson(savedPendingRegistration.userAnswersData).toString
         when(mockEncryptionService.decryptField(eqTo(encryptedUniqueActivationCode))) thenReturn Json.toJson(savedPendingRegistration.uniqueActivationCode).toString
 
         val result = encryptor.decryptUserAnswers(encryptedSavedPendingRegistration)
 
         withClue("Should decrypt userAnswers") {
-          result.userAnswers mustEqual savedPendingRegistration.userAnswers
+          result.userAnswersData mustEqual savedPendingRegistration.userAnswersData
         }
 
         result.getClass `mustBe` savedPendingRegistration.getClass
@@ -125,7 +125,7 @@ class SavedPendingRegistrationEncryptorSpec extends BaseSpec with BeforeAndAfter
 
         val encryptor = new SavedPendingRegistrationEncryptor(mockEncryptionService)
 
-        when(mockEncryptionService.encryptField(eqTo(Json.toJson(savedPendingRegistration.userAnswers).toString))) thenReturn encryptedUserAnswers
+        when(mockEncryptionService.encryptField(eqTo(Json.toJson(savedPendingRegistration.userAnswersData).toString))) thenReturn encryptedUserAnswers
         when(mockEncryptionService.encryptField(eqTo(savedPendingRegistration.uniqueActivationCode))) thenReturn encryptedUniqueActivationCode
 
         val encryptedSavedPendingRegistration: EncryptedSavedPendingRegistration = encryptor.encryptAnswers(savedPendingRegistration)

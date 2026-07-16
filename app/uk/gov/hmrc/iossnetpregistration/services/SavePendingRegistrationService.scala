@@ -34,7 +34,7 @@ class SavePendingRegistrationService @Inject()(
     val pendingRegistration: SavedPendingRegistration = SavedPendingRegistration(
       journeyId = pendingRegistrationRequest.userAnswers.journeyId,
       uniqueUrlCode = uniqueCodeGeneratorService.generateUniqueCode(),
-      userAnswers = pendingRegistrationRequest.userAnswers,
+      userAnswersData = pendingRegistrationRequest.userAnswers.data,
       lastUpdated = pendingRegistrationRequest.userAnswers.lastUpdated,
       uniqueActivationCode = uniqueCodeGeneratorService.generateUniqueCode(),
       intermediaryDetails = pendingRegistrationRequest.intermediaryDetails
@@ -59,15 +59,15 @@ class SavePendingRegistrationService @Inject()(
       regs.filter { reg =>
         idType match {
           case "VRN" =>
-            (reg.userAnswers.data \ "clientVatNumber").asOpt[String].contains(idValue)
+            (reg.userAnswersData \ "clientVatNumber").asOpt[String].contains(idValue)
           case "NINO" =>
-            (reg.userAnswers.data \ "clientsNinoNumber").asOpt[String].contains(idValue)
+            (reg.userAnswersData \ "clientsNinoNumber").asOpt[String].contains(idValue)
 
           case "UTR" =>
-            (reg.userAnswers.data \ "clientUtrNumber").asOpt[String].contains(idValue)
+            (reg.userAnswersData \ "clientUtrNumber").asOpt[String].contains(idValue)
 
           case "FTR" =>
-            (reg.userAnswers.data \ "clientTaxRefrence").asOpt[String].contains(idValue)
+            (reg.userAnswersData \ "clientTaxRefrence").asOpt[String].contains(idValue)
           case _ =>
             false
         }
@@ -105,19 +105,15 @@ class SavePendingRegistrationService @Inject()(
       case Some(pendingRegistration) =>
 
         val updatedBusinessContact: JsObject =
-          (pendingRegistration.userAnswers.data \ "businessContactDetails").asOpt[JsObject].getOrElse(Json.obj()) ++
+          (pendingRegistration.userAnswersData \ "businessContactDetails").asOpt[JsObject].getOrElse(Json.obj()) ++
             Json.obj("emailAddress" -> newEmailAddress)
 
         val updatedData: JsObject =
-          pendingRegistration.userAnswers.data ++ Json.obj("businessContactDetails" -> updatedBusinessContact)
-
-        val updatedUserAnswers = pendingRegistration.userAnswers.copy(
-          data = updatedData,
-          lastUpdated = Instant.now
-        )
+          pendingRegistration.userAnswersData ++ Json.obj("businessContactDetails" -> updatedBusinessContact)
 
         val updatedPendingRegistration = pendingRegistration.copy(
-          userAnswers = updatedUserAnswers
+          userAnswersData = updatedData,
+          lastUpdated = Instant.now
         )
 
         pendingRegistrationRepository.updateClientEmail(updatedPendingRegistration).map(Some(_))

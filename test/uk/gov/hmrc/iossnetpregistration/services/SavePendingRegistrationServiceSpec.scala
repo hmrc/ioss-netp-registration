@@ -25,7 +25,7 @@ class SavePendingRegistrationServiceSpec extends BaseSpec with BeforeAndAfterEac
 
   private val savedPendingRegistration: SavedPendingRegistration = arbitrarySavedPendingRegistration.arbitrary.sample.value
 
-  private val userAnswers: UserAnswers = savedPendingRegistration.userAnswers
+  private val userAnswers: UserAnswers = arbitraryUserAnswers.arbitrary.sample.value
 
   private val pendingRegistrationRequest = PendingRegistrationRequest(userAnswers, savedPendingRegistration.intermediaryDetails)
 
@@ -44,7 +44,14 @@ class SavePendingRegistrationServiceSpec extends BaseSpec with BeforeAndAfterEac
 
       "must create a new saved pending registration and save it to the pending registration repository when invoked" in {
 
-        val testSavedPendingReg = savedPendingRegistration.copy(uniqueUrlCode = "ABCDEF", uniqueActivationCode = "ABCDEF")
+        val testSavedPendingReg = savedPendingRegistration.copy(
+          journeyId = pendingRegistrationRequest.userAnswers.journeyId,
+          uniqueUrlCode = "ABCDEF",
+          userAnswersData = pendingRegistrationRequest.userAnswers.data,
+          lastUpdated = pendingRegistrationRequest.userAnswers.lastUpdated,
+          uniqueActivationCode = "ABCDEF",
+          intermediaryDetails = pendingRegistrationRequest.intermediaryDetails
+        )
 
         when(mockPendingRegistrationRepository.set(any())) thenReturn testSavedPendingReg.toFuture
         when(mockUniqueCodeGeneratorService.generateUniqueCode()) thenReturn "ABCDEF"
@@ -103,7 +110,7 @@ class SavePendingRegistrationServiceSpec extends BaseSpec with BeforeAndAfterEac
 
       def registrationWithData(data: JsObject): SavedPendingRegistration =
         savedPendingRegistration.copy(
-          userAnswers = savedPendingRegistration.userAnswers.copy(data = data)
+          userAnswersData = data
         )
 
       "must return pending registrations matching VRN" in {
@@ -365,11 +372,9 @@ class SavePendingRegistrationServiceSpec extends BaseSpec with BeforeAndAfterEac
 
       val savedPendingRegistrationWithOldEmail: SavedPendingRegistration =
         savedPendingRegistration.copy(
-          userAnswers = savedPendingRegistration.userAnswers.copy(
-            data = Json.obj(
-              "businessContactDetails" -> Json.obj(
-                "emailAddress" -> oldEmail
-              )
+          userAnswersData = Json.obj(
+            "businessContactDetails" -> Json.obj(
+              "emailAddress" -> oldEmail
             )
           )
         )
@@ -378,11 +383,9 @@ class SavePendingRegistrationServiceSpec extends BaseSpec with BeforeAndAfterEac
 
         val updatedPendingRegistration =
           savedPendingRegistrationWithOldEmail.copy(
-            userAnswers = savedPendingRegistrationWithOldEmail.userAnswers.copy(
-              data = Json.obj(
-                "businessContactDetails" -> Json.obj(
-                  "emailAddress" -> newEmail
-                )
+            userAnswersData = Json.obj(
+              "businessContactDetails" -> Json.obj(
+                "emailAddress" -> newEmail
               )
             )
           )
@@ -394,8 +397,8 @@ class SavePendingRegistrationServiceSpec extends BaseSpec with BeforeAndAfterEac
 
         val result = service.updateClientEmailAddress(journeyId, newEmail).futureValue
 
-        result.value.userAnswers.data mustBe updatedPendingRegistration.userAnswers.data
-        (result.value.userAnswers.data \ "businessContactDetails" \ "emailAddress").as[String] mustBe newEmail
+        result.value.userAnswersData mustBe updatedPendingRegistration.userAnswersData
+        (result.value.userAnswersData \ "businessContactDetails" \ "emailAddress").as[String] mustBe newEmail
 
         verify(mockPendingRegistrationRepository, times(1)).getDecrypted(eqTo(journeyId))
         verify(mockPendingRegistrationRepository, times(1)).updateClientEmail(any())
