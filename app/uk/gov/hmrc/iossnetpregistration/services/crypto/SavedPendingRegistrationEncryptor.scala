@@ -57,14 +57,21 @@ class SavedPendingRegistrationEncryptor @Inject()(
 
     def decryptAnswerValue(encryptedValue: String): String = encryptionService.decryptField(encryptedValue)
 
-    val userAnswersData = Json.parse(decryptAnswerValue(encryptedSavedPendingRegistration.data)).validate[JsObject] match {
-      case JsSuccess(value, _) => value
-      case JsError(errors) =>
-        val message: String = s"Failed trying to parse UserAnswers JSON with errors: $errors"
-        val exception = new Exception(message)
-        logger.error(exception.getMessage, exception)
-        throw exception
+    val jsonDecryptedDataString = Json.parse(decryptAnswerValue(encryptedSavedPendingRegistration.data))
+
+    val userAnswersData: JsObject = jsonDecryptedDataString.validate[UserAnswers] match {
+      case JsSuccess(value, _) => value.data
+      case _ =>
+        jsonDecryptedDataString.validate[JsObject] match {
+          case JsSuccess(value, _) => value
+          case JsError(errors) =>
+            val message: String = s"Failed trying to parse UserAnswers JSON with errors: $errors"
+            val exception = new Exception(message)
+            logger.error(exception.getMessage, exception)
+            throw exception
+        }
     }
+
 
     SavedPendingRegistration(
       journeyId = encryptedSavedPendingRegistration.journeyId,
@@ -79,7 +86,7 @@ class SavedPendingRegistrationEncryptor @Inject()(
   def decryptSaveForLaterAnswers(encryptedSavedUserAnswers: EncryptedSavedUserAnswers): SavedUserAnswers = {
 
     def decryptAnswerValue(encryptedValue: String): String = encryptionService.decryptField(encryptedValue)
-    
+
     SavedUserAnswers(
       journeyId = encryptedSavedUserAnswers.journeyId,
       data = Json.parse(decryptAnswerValue(encryptedSavedUserAnswers.data)).as[JsObject],
