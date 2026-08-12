@@ -59,7 +59,7 @@ class SavedPendingRegistrationEncryptor @Inject()(
 
     val jsonDecryptedDataString = Json.parse(decryptAnswerValue(encryptedSavedPendingRegistration.data))
 
-    val userAnswersData: JsObject = jsonDecryptedDataString.validate[UserAnswers] match {
+    val userAnswersData: JsObject = jsonDecryptedDataString.validate[UserAnswersLegacy] match {
       case JsSuccess(value, _) => value.data
       case _ =>
         jsonDecryptedDataString.validate[JsObject] match {
