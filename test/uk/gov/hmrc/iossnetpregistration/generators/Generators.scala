@@ -94,6 +94,7 @@ trait Generators {
       for {
         desAddress <- arbitraryDesAddress.arbitrary
         registrationDate <- arbitrary[LocalDate]
+        partOfVatGroup <- arbitrary[Boolean]
         organisationName <- arbitrary[String]
         individualName <- arbitrary[String]
         singleMarketIndicator <- arbitrary[Boolean]
@@ -103,6 +104,7 @@ trait Generators {
         VatCustomerInfo(
           desAddress = desAddress,
           registrationDate = Some(registrationDate),
+          partOfVatGroup = partOfVatGroup,
           organisationName = Some(organisationName),
           individualName = Some(individualName),
           singleMarketIndicator = singleMarketIndicator,
@@ -158,7 +160,7 @@ trait Generators {
         SavedPendingRegistration(
           journeyId = userAnswers.journeyId,
           uniqueUrlCode = uniqueUrlCode,
-          userAnswers = userAnswers,
+          userAnswersData = userAnswers.data,
           lastUpdated = userAnswers.lastUpdated,
           uniqueActivationCode = uniqueActivationCode,
           intermediaryDetails = IntermediaryDetails(intermediaryNumber, intermediaryName)

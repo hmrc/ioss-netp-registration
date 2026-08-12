@@ -57,3 +57,32 @@ object UserAnswers {
 
   implicit val format: OFormat[UserAnswers] = OFormat(reads, writes)
 }
+
+case class UserAnswersLegacy(
+                              id: String,
+                              journeyId: String,
+                              data: JsObject
+                            )
+
+object UserAnswersLegacy {
+
+  val reads: Reads[UserAnswersLegacy] = {
+
+    (
+      (__ \ "_id").read[String] and
+        (__ \ "journeyId").read[String] and
+        (__ \ "data").read[JsObject]
+      )(UserAnswersLegacy.apply _)
+  }
+
+  val writes: OWrites[UserAnswersLegacy] = {
+
+    (
+      (__ \ "_id").write[String] and
+        (__ \ "journeyId").write[String] and
+        (__ \ "data").write[JsObject]
+      )(userAnswers => Tuple.fromProductTyped(userAnswers))
+  }
+
+  implicit val format: OFormat[UserAnswersLegacy] = OFormat(reads, writes)
+}

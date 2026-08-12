@@ -25,7 +25,7 @@ class PendingRegistrationControllerSpec extends BaseSpec with BeforeAndAfterEach
 
   private val savedPendingRegistration: SavedPendingRegistration = arbitrarySavedPendingRegistration.arbitrary.sample.value
 
-  private val userAnswers: UserAnswers = savedPendingRegistration.userAnswers
+  private val userAnswers: UserAnswers = arbitraryUserAnswers.arbitrary.sample.value
 
   private val pendingRegistrationRequest = PendingRegistrationRequest(userAnswers, savedPendingRegistration.intermediaryDetails)
 

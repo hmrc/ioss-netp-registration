@@ -36,7 +36,8 @@ class VatInfoControllerSpec extends BaseSpec {
         organisationName = Some("Foo"),
         singleMarketIndicator = false,
         individualName = None,
-        deregistrationDecisionDate = None
+        deregistrationDecisionDate = None,
+        partOfVatGroup = false,
       )
 
       when(mockConnector.getVatCustomerDetails(any())(any())) thenReturn Right(vatInfo).toFuture

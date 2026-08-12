@@ -34,7 +34,7 @@ class SavedPendingRegistrationEncryptor @Inject()(
     EncryptedSavedPendingRegistration(
       journeyId = savedPendingRegistration.journeyId,
       uniqueUrlCode = savedPendingRegistration.uniqueUrlCode,
-      data = encryptAnswerValue(Json.toJson(savedPendingRegistration.userAnswers).toString),
+      data = encryptAnswerValue(Json.toJson(savedPendingRegistration.userAnswersData).toString),
       lastUpdated = savedPendingRegistration.lastUpdated,
       uniqueActivationCode = encryptAnswerValue(savedPendingRegistration.uniqueActivationCode),
       intermediaryDetails = savedPendingRegistration.intermediaryDetails
@@ -57,19 +57,26 @@ class SavedPendingRegistrationEncryptor @Inject()(
 
     def decryptAnswerValue(encryptedValue: String): String = encryptionService.decryptField(encryptedValue)
 
-    val jsonParseResult = Json.parse(decryptAnswerValue(encryptedSavedPendingRegistration.data)).validate[UserAnswers] match {
-      case JsSuccess(value, _) => value
-      case JsError(errors) =>
-        val message: String = s"Failed trying to parse UserAnswers JSON with errors: $errors"
-        val exception = new Exception(message)
-        logger.error(exception.getMessage, exception)
-        throw exception
+    val jsonDecryptedDataString = Json.parse(decryptAnswerValue(encryptedSavedPendingRegistration.data))
+
+    val userAnswersData: JsObject = jsonDecryptedDataString.validate[UserAnswersLegacy] match {
+      case JsSuccess(value, _) => value.data
+      case _ =>
+        jsonDecryptedDataString.validate[JsObject] match {
+          case JsSuccess(value, _) => value
+          case JsError(errors) =>
+            val message: String = s"Failed trying to parse UserAnswers JSON with errors: $errors"
+            val exception = new Exception(message)
+            logger.error(exception.getMessage, exception)
+            throw exception
+        }
     }
+
 
     SavedPendingRegistration(
       journeyId = encryptedSavedPendingRegistration.journeyId,
       uniqueUrlCode = encryptedSavedPendingRegistration.uniqueUrlCode,
-      userAnswers = jsonParseResult,
+      userAnswersData = userAnswersData,
       lastUpdated = encryptedSavedPendingRegistration.lastUpdated,
       uniqueActivationCode = decryptAnswerValue(encryptedSavedPendingRegistration.uniqueActivationCode),
       intermediaryDetails = encryptedSavedPendingRegistration.intermediaryDetails
@@ -79,7 +86,7 @@ class SavedPendingRegistrationEncryptor @Inject()(
   def decryptSaveForLaterAnswers(encryptedSavedUserAnswers: EncryptedSavedUserAnswers): SavedUserAnswers = {
 
     def decryptAnswerValue(encryptedValue: String): String = encryptionService.decryptField(encryptedValue)
-    
+
     SavedUserAnswers(
       journeyId = encryptedSavedUserAnswers.journeyId,
       data = Json.parse(decryptAnswerValue(encryptedSavedUserAnswers.data)).as[JsObject],

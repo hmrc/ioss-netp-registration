@@ -14,7 +14,7 @@ class SavedPendingRegistrationSpec extends BaseSpec {
       val json = Json.obj(
         "journeyId" -> savedPendingRegistration.journeyId,
         "uniqueUrlCode" -> savedPendingRegistration.uniqueUrlCode,
-        "userAnswers" -> savedPendingRegistration.userAnswers,
+        "userAnswersData" -> savedPendingRegistration.userAnswersData,
         "lastUpdated" -> savedPendingRegistration.lastUpdated,
         "uniqueActivationCode" -> savedPendingRegistration.uniqueActivationCode,
         "intermediaryDetails" -> savedPendingRegistration.intermediaryDetails
@@ -23,7 +23,7 @@ class SavedPendingRegistrationSpec extends BaseSpec {
       val expectedResult: SavedPendingRegistration = SavedPendingRegistration(
         journeyId = savedPendingRegistration.journeyId,
         uniqueUrlCode = savedPendingRegistration.uniqueUrlCode,
-        userAnswers = savedPendingRegistration.userAnswers,
+        userAnswersData = savedPendingRegistration.userAnswersData,
         lastUpdated = savedPendingRegistration.lastUpdated,
         uniqueActivationCode = savedPendingRegistration.uniqueActivationCode,
         intermediaryDetails = savedPendingRegistration.intermediaryDetails
@@ -45,7 +45,7 @@ class SavedPendingRegistrationSpec extends BaseSpec {
       val json = Json.obj(
         "journeyId" -> savedPendingRegistration.journeyId,
         "uniqueUrlCode" -> 12345,
-        "userAnswers" -> savedPendingRegistration.userAnswers,
+        "userAnswersData" -> savedPendingRegistration.userAnswersData,
         "lastUpdated" -> savedPendingRegistration.lastUpdated,
         "uniqueActivationCode" -> savedPendingRegistration.uniqueActivationCode,
         "intermediaryDetails" -> savedPendingRegistration.intermediaryDetails
