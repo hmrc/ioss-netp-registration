@@ -33,7 +33,7 @@ class VatInfoController @Inject()(
                                    getVatInfoConnector: GetVatInfoConnector
                                  )(implicit ec: ExecutionContext) extends BackendController(cc) with Logging {
 
-  def get(vrn: String): Action[AnyContent] = cc.identify.async {
+  def get(vrn: String): Action[AnyContent] = cc.anyLoggedInUserAction.async {
     implicit request =>
       getVatInfoConnector.getVatCustomerDetails(Vrn(vrn)).map {
         case Right(response) =>

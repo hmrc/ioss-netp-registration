@@ -21,6 +21,7 @@ import play.api.mvc.*
 import play.api.mvc.Results.*
 import uk.gov.hmrc.auth.core.*
 import uk.gov.hmrc.auth.core.retrieve.*
+import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
 import uk.gov.hmrc.http.{HeaderCarrier, UnauthorizedException}
 import uk.gov.hmrc.iossnetpregistration.logging.Logging
 import uk.gov.hmrc.iossnetpregistration.models.requests.AnyLoggedInUserRequest
